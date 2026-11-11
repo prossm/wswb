@@ -253,6 +253,14 @@ form.addEventListener('submit', (e) => {
   }
 });
 
+// Cmd-Enter (Ctrl-Enter on Windows/Linux) presses the step's main button:
+// Next on steps 1 and 2, "Share my idea" on step 3. Works inside textareas too.
+form.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey) || e.isComposing) return;
+  e.preventDefault();
+  form.requestSubmit();
+});
+
 for (const b of $$('[data-back]', form)) {
   b.addEventListener('click', () => showStep(Math.max(1, step - 1)));
 }
@@ -393,7 +401,7 @@ function renderCard(idea) {
     { class: 'byline' },
     el('span', { text: idea.name?.trim() || 'Anonymous' }),
     idea.github
-      ? [' · ', el('a', { href: `https://github.com/${encodeURIComponent(idea.github)}`, rel: 'noopener', text: `@${idea.github}` })]
+      ? [' · ', externalLink(`https://github.com/${encodeURIComponent(idea.github)}`, `@${idea.github}`)]
       : null,
     ' · ',
     el('time', { datetime: idea.created_at, title: new Date(idea.created_at).toLocaleString(), text: relativeTime(idea.created_at) }),
@@ -554,6 +562,16 @@ function el(tag, props = {}, ...children) {
   }
   for (const c of children.flat()) if (c != null && c !== false) node.append(c);
   return node;
+}
+
+// Links off the site open in a new tab, and say so to screen readers.
+function externalLink(href, text) {
+  return el(
+    'a',
+    { href, target: '_blank', rel: 'noopener noreferrer' },
+    text,
+    el('span', { class: 'visually-hidden', text: ' (opens in a new tab)' }),
+  );
 }
 
 function truncate(text) {
