@@ -1,2 +1,4 @@
 .DS_Store
 node_modules/
+# local SQLite database from `node server/server.js`
+data/

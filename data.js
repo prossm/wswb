@@ -1,14 +1,12 @@
 // Data layer. The UI only calls submitIdea, listIdeas, and toggleReaction.
-// With a Supabase URL in config.js these talk to Supabase; without one they
-// use an in-memory demo adapter seeded from demo-data.js.
+// These talk to the API in server/server.js. In demo mode (API_URL empty in
+// config.js, or ?demo in the page URL) they use an in-memory adapter seeded
+// from demo-data.js instead.
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+import { API_URL } from './config.js';
 import { DEMO_IDEAS } from './demo-data.js';
 
-// Pinned to an exact version on purpose. Never use a range or @latest.
-const SUPABASE_JS_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
-
-export const isDemo = !SUPABASE_URL;
+export const isDemo = !API_URL || new URLSearchParams(location.search).has('demo');
 
 // ---------- localStorage that never throws ----------
 
@@ -47,52 +45,31 @@ if (!voter || !UUID_RE.test(voter)) {
   storage.set(VOTER_KEY, voter);
 }
 
-// ---------- Supabase adapter ----------
+// ---------- HTTP adapter (server/server.js) ----------
 
-let clientPromise = null;
-
-function getClient() {
-  if (!clientPromise) {
-    clientPromise = import(SUPABASE_JS_URL)
-      .then(({ createClient }) =>
-        createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-          auth: { persistSession: false, autoRefreshToken: false },
-        }),
-      )
-      .catch((err) => {
-        clientPromise = null; // let the next call try loading again
-        throw err;
-      });
-  }
-  return clientPromise;
+async function api(method, path, body) {
+  const res = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(`${method} ${path} failed: ${res.status}`);
+  return res.json();
 }
 
-const supabaseAdapter = {
+const httpAdapter = {
   async submitIdea(row) {
-    const sb = await getClient();
-    // No .select(): the browser can't read ideas, so ask for nothing back.
-    const { error } = await sb.from('ideas').insert({ ...row, submitter: voter });
-    // 23505 = duplicate id. The client reuses the same id when retrying, so
-    // this means an earlier attempt actually got through.
-    if (error && error.code !== '23505') throw error;
+    // Safe to retry: the server ignores a second insert with the same id.
+    await api('POST', '/ideas', { ...row, submitter: voter });
   },
 
   async listIdeas() {
-    const sb = await getClient();
-    const { data, error } = await sb.rpc('list_ideas', { p_voter: voter });
-    if (error) throw error;
-    return data ?? [];
+    return api('GET', `/ideas?voter=${encodeURIComponent(voter)}`);
   },
 
   async toggleReaction(ideaId, kind) {
-    const sb = await getClient();
-    const { data, error } = await sb.rpc('toggle_reaction', {
-      p_idea: ideaId,
-      p_kind: kind,
-      p_voter: voter,
-    });
-    if (error) throw error;
-    return data === true;
+    const { on } = await api('POST', '/reactions', { idea: ideaId, kind, voter });
+    return on === true;
   },
 };
 
@@ -171,7 +148,7 @@ function createDemoAdapter() {
 
 // ---------- Public interface ----------
 
-const adapter = isDemo ? createDemoAdapter() : supabaseAdapter;
+const adapter = isDemo ? createDemoAdapter() : httpAdapter;
 
 /** Save a new idea. `row` has id plus the form fields; submitter is added here. */
 export const submitIdea = (row) => adapter.submitIdea(row);

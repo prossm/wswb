@@ -1,0 +1,7 @@
+{
+  "name": "wswb-server",
+  "private": true,
+  "type": "module",
+  "description": "Static page + JSON API + SQLite for wswb.fyi. No dependencies.",
+  "engines": { "node": ">=22.13" }
+}

@@ -1,6 +1,4 @@
-// Supabase connection settings.
-// Leave both empty to run in demo mode (in-memory sample data, nothing saved).
-// The anon key is safe to publish: the database's access rules in
-// supabase/schema.sql only let the browser insert ideas and call two functions.
-export const SUPABASE_URL = '';
-export const SUPABASE_ANON_KEY = '';
+// Where the API lives. '/api' is served by server/server.js alongside this page.
+// Set it to '' to run in demo mode (sample data in memory, nothing saved).
+// You can also add ?demo to the page URL for demo mode without editing this.
+export const API_URL = '/api';
