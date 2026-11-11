@@ -14,12 +14,19 @@
   <p id="demo-banner" class="banner" hidden>Demo mode: nothing is saved.</p>
 
   <main class="wrap">
+    <p class="group-name">The Product Group Hudson Valley</p>
+
     <noscript><p>This page needs JavaScript to work.</p></noscript>
 
     <!-- Steps 1 to 3: one form split across three screens -->
     <form id="idea-form" novalidate hidden>
       <h1 class="visually-hidden">What should we build?</h1>
-      <p class="step-indicator" id="step-indicator"><span class="visually-hidden">Step </span><span id="step-num">1</span> of 3</p>
+      <div class="progress">
+        <div class="progress-track" aria-hidden="true">
+          <span class="progress-seg"></span><span class="progress-seg"></span><span class="progress-seg"></span>
+        </div>
+        <p class="step-indicator" id="step-indicator"><span class="visually-hidden">Step </span><span id="step-num">1</span> of 3</p>
+      </div>
 
       <!-- Step 1: open prompt -->
       <section class="step" data-step="1">

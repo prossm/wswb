@@ -156,6 +156,7 @@ function showStep(n, { focus = true } = {}) {
   step = n;
   for (const s of $$('.step', form)) s.hidden = Number(s.dataset.step) !== n;
   $('#step-num').textContent = String(n);
+  $$('.progress-seg', form).forEach((seg, i) => seg.classList.toggle('filled', i < n));
   saveDraft();
   window.scrollTo({ top: 0, behavior: 'instant' });
   if (focus) {

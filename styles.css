@@ -7,6 +7,7 @@
   --muted: #55555b;        /* 7.0:1 on --bg */
   --border: #8a8a90;       /* 3.4:1 on --surface, for control outlines */
   --hairline: #e3e2de;
+  --track: #d6d4ce;
   --accent: #0b6b4c;       /* 6.4:1 on white */
   --accent-text: #ffffff;
   --accent-soft: #e3f2ec;
@@ -26,6 +27,7 @@
     --muted: #a9a9b0;      /* 7.6:1 on --surface */
     --border: #7c7c84;
     --hairline: #2e3034;
+    --track: #3b3e44;
     --accent: #5fd0a5;     /* 9.5:1 on --surface */
     --accent-text: #0a1f17;
     --accent-soft: #183a2e;
@@ -51,7 +53,14 @@ body {
 .wrap {
   max-width: 680px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 24px clamp(20px, 6vw, 32px) 64px;
+}
+
+.group-name {
+  font-weight: 800;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  margin-bottom: 20px;
 }
 
 h1, h2, p { margin: 0; }
@@ -89,11 +98,51 @@ h1, h2, p { margin: 0; }
 
 /* ---------- Form ---------- */
 
+/* Progress: three segments that fill as you go, plus a small "1 of 3" */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.progress-track {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.progress-seg {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--track);
+  position: relative;
+  overflow: hidden;
+}
+.progress-seg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms ease;
+}
+.progress-seg.filled::after { transform: scaleX(1); }
+
+/* Unfilled segments need a visible edge in forced-colors / high-contrast mode */
+@media (forced-colors: active) {
+  .progress-seg { border: 1px solid CanvasText; }
+  .progress-seg.filled::after { background: CanvasText; }
+}
+
 .step-indicator {
   color: var(--muted);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 0.875rem;
+  font-weight: 650;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .step { display: grid; gap: 28px; }
