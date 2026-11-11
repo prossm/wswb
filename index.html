@@ -105,6 +105,14 @@
         </div>
 
         <div class="field">
+          <label for="github">GitHub username <span class="optional">Optional</span></label>
+          <p class="helper" id="github-help">Shown with your idea so people can find you. Don't have one? Leave it blank.</p>
+          <input type="text" id="github" name="github" maxlength="100" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="e.g. octocat" aria-describedby="github-help github-counter github-error">
+          <p class="counter" id="github-counter" hidden></p>
+          <p class="error" id="github-error" hidden></p>
+        </div>
+
+        <div class="field">
           <label for="email">Email (private) <span class="optional">Optional</span></label>
           <p class="helper" id="email-help">Only the organizers see this, to follow up about your idea.</p>
           <input type="email" id="email" name="email" maxlength="254" autocomplete="email" inputmode="email" spellcheck="false" aria-describedby="email-help email-counter email-error">

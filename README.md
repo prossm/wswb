@@ -2,6 +2,8 @@
 
 **What should we build?** A one-page site where members of The Product Group Hudson Valley propose things the group could build together, then see and react to everyone else's ideas.
 
+People can optionally add their GitHub username, which shows on their card as a link to their profile.
+
 Visitors answer the open question first, before they see any other ideas, so nobody gets anchored on someone else's answer. Then they sharpen the idea (who it's for, the problem, the smallest version), say whether they'd help, and land on the board.
 
 "wswb" is a working title. The site and repo may be renamed once the group picks a project.

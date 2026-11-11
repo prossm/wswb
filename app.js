@@ -7,6 +7,17 @@ const DRAFT_KEY = 'wswb.draft';
 const SUBMITTED_KEY = 'wswb.submitted';
 const TRUNCATE_AT = 280;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// GitHub usernames: letters, digits, single hyphens, no leading/trailing hyphen, max 39.
+const GITHUB_RE = /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/;
+
+// Accept "@name" or a pasted profile URL and keep just the username.
+function cleanGithub(v) {
+  return v
+    .trim()
+    .replace(/^(?:https?:\/\/)?(?:www\.)?github\.com\//i, '')
+    .replace(/^@/, '')
+    .replace(/\/+$/, '');
+}
 
 const FIELDS = {
   idea: { max: 1000, required: true, message: "Write a few words about what you'd build." },
@@ -15,6 +26,12 @@ const FIELDS = {
   why_tech: { max: 600 },
   smallest: { max: 600 },
   name: { max: 80 },
+  github: {
+    // maxlength is generous so people can paste a profile URL; it's cleaned up on check/submit.
+    max: 100,
+    message: "That doesn't look like a GitHub username. Fix it or leave it blank.",
+    check: (v) => v === '' || GITHUB_RE.test(cleanGithub(v)),
+  },
   email: {
     max: 254,
     message: "That email doesn't look right. Fix it or leave it blank.",
@@ -22,7 +39,7 @@ const FIELDS = {
   },
 };
 const TEXT_KEYS = Object.keys(FIELDS);
-const STEP_FIELDS = { 1: ['idea'], 2: ['who', 'pain', 'why_tech', 'smallest'], 3: ['name', 'email'] };
+const STEP_FIELDS = { 1: ['idea'], 2: ['who', 'pain', 'why_tech', 'smallest'], 3: ['name', 'github', 'email'] };
 
 const EVIDENCE_LABELS = { one_of_them: 'One of them', talked_to_them: 'Talked to them', hunch: 'Hunch' };
 const ROLE_LABELS = {
@@ -200,6 +217,7 @@ async function submit() {
     smallest: optional(v.smallest),
     help_roles: v.help_roles,
     name: optional(v.name),
+    github: optional(cleanGithub(v.github)),
     email: optional(v.email),
   };
 
@@ -374,6 +392,9 @@ function renderCard(idea) {
     'p',
     { class: 'byline' },
     el('span', { text: idea.name?.trim() || 'Anonymous' }),
+    idea.github
+      ? [' · ', el('a', { href: `https://github.com/${encodeURIComponent(idea.github)}`, rel: 'noopener', text: `@${idea.github}` })]
+      : null,
     ' · ',
     el('time', { datetime: idea.created_at, title: new Date(idea.created_at).toLocaleString(), text: relativeTime(idea.created_at) }),
   );

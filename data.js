@@ -143,6 +143,7 @@ function createDemoAdapter() {
             smallest: i.smallest,
             help_roles: i.help_roles,
             name: i.name,
+            github: i.github ?? null,
             status: i.status,
             is_mine: i.submitter === voter,
             work_on_count: i.base.work_on + (onWork ? 1 : 0),

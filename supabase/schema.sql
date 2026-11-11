@@ -13,6 +13,7 @@ create table public.ideas (
   help_roles  text[] not null default '{}'
               check (help_roles <@ array['code','design','users','testing','organizing','idea_only']),
   name        text check (char_length(name) <= 80),
+  github      text check (github ~ '^[A-Za-z0-9](-?[A-Za-z0-9])*$' and char_length(github) <= 39),
   email       text check (char_length(email) <= 254),
   submitter   uuid not null,
   status      text not null default 'live' check (status in ('pending', 'live', 'hidden'))
@@ -36,14 +37,15 @@ create policy "anyone can submit" on public.ideas
 
 revoke all on public.ideas, public.reactions from anon, authenticated;
 -- Column list leaves out created_at and status, so the defaults always apply.
-grant insert (id, idea, who, pain, why_tech, evidence, smallest, help_roles, name, email, submitter)
+grant insert (id, idea, who, pain, why_tech, evidence, smallest, help_roles, name, github, email, submitter)
   on public.ideas to anon, authenticated;
 
 -- The board: live ideas plus the caller's own pending ones. Never returns email or submitter.
+-- github is public: it's shown on the card as a link to the person's profile.
 create function public.list_ideas(p_voter uuid)
 returns table (
   id uuid, created_at timestamptz, idea text, who text, pain text,
-  why_tech text, evidence text, smallest text, help_roles text[], name text,
+  why_tech text, evidence text, smallest text, help_roles text[], name text, github text,
   status text, is_mine boolean,
   work_on_count int, know_someone_count int,
   i_work_on boolean, i_know_someone boolean
@@ -51,7 +53,7 @@ returns table (
 language sql stable security definer set search_path = public
 as $$
   select i.id, i.created_at, i.idea, i.who, i.pain, i.why_tech, i.evidence,
-         i.smallest, i.help_roles, i.name, i.status,
+         i.smallest, i.help_roles, i.name, i.github, i.status,
          i.submitter = p_voter,
          (select count(*) from reactions r where r.idea_id = i.id and r.kind = 'work_on')::int,
          (select count(*) from reactions r where r.idea_id = i.id and r.kind = 'know_someone')::int,
