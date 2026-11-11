@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What should we build?</title>
+  <meta name="description" content="Propose something The Product Group Hudson Valley could build together.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6b4c'/%3E%3Ctext x='16' y='23' font-family='system-ui,sans-serif' font-size='20' font-weight='800' fill='white' text-anchor='middle'%3E%3F%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <p id="demo-banner" class="banner" hidden>Demo mode: nothing is saved.</p>
+
+  <main class="wrap">
+    <noscript><p>This page needs JavaScript to work.</p></noscript>
+
+    <!-- Steps 1 to 3: one form split across three screens -->
+    <form id="idea-form" novalidate hidden>
+      <h1 class="visually-hidden">What should we build?</h1>
+      <p class="step-indicator" id="step-indicator"><span class="visually-hidden">Step </span><span id="step-num">1</span> of 3</p>
+
+      <!-- Step 1: open prompt -->
+      <section class="step" data-step="1">
+        <div class="field">
+          <label for="idea" class="big-question">If we built one thing together, what should it be?</label>
+          <p class="helper" id="idea-help">Say it however it comes out: a problem, a group of people, an app idea, a hunch. You'll see everyone else's ideas after you share yours.</p>
+          <textarea id="idea" name="idea" rows="6" maxlength="1000" aria-required="true" aria-describedby="idea-help idea-counter idea-error"></textarea>
+          <p class="counter" id="idea-counter" hidden></p>
+          <p class="error" id="idea-error" hidden></p>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn primary">Next</button>
+        </div>
+      </section>
+
+      <!-- Step 2: sharpen it -->
+      <section class="step" data-step="2" hidden>
+        <div class="field">
+          <label for="who">Who would it be for?</label>
+          <p class="helper" id="who-help">The more specific the better. "Farmers market vendors" beats "small businesses."</p>
+          <input type="text" id="who" name="who" maxlength="200" aria-required="true" aria-describedby="who-help who-counter who-error">
+          <p class="counter" id="who-counter" hidden></p>
+          <p class="error" id="who-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="pain">What problem do they have?</label>
+          <p class="helper" id="pain-help">What's hard, slow, or frustrating for them today?</p>
+          <textarea id="pain" name="pain" rows="4" maxlength="1000" aria-required="true" aria-describedby="pain-help pain-counter pain-error"></textarea>
+          <p class="counter" id="pain-counter" hidden></p>
+          <p class="error" id="pain-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="why_tech">Why would software help? <span class="optional">Optional</span></label>
+          <p class="helper" id="why_tech-help">Some problems need a phone tree or a volunteer, not an app. That's a fine answer too.</p>
+          <textarea id="why_tech" name="why_tech" rows="3" maxlength="600" aria-describedby="why_tech-help why_tech-counter"></textarea>
+          <p class="counter" id="why_tech-counter" hidden></p>
+        </div>
+
+        <fieldset class="field">
+          <legend>How do you know? <span class="optional">Optional</span></legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="evidence" value="one_of_them"><span>I'm one of them</span></label>
+            <label class="chip"><input type="radio" name="evidence" value="talked_to_them"><span>I've talked to them</span></label>
+            <label class="chip"><input type="radio" name="evidence" value="hunch"><span>It's a hunch</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="smallest">What's the smallest version that would help? <span class="optional">Optional</span></label>
+          <p class="helper" id="smallest-help">Think one screen, or something a few people could build in a weekend. "Not sure" is fine.</p>
+          <textarea id="smallest" name="smallest" rows="3" maxlength="600" aria-describedby="smallest-help smallest-counter"></textarea>
+          <p class="counter" id="smallest-counter" hidden></p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" data-back>Back</button>
+          <button type="submit" class="btn primary">Next</button>
+        </div>
+      </section>
+
+      <!-- Step 3: about you -->
+      <section class="step" data-step="3" hidden>
+        <fieldset class="field">
+          <legend>Would you help build it? <span class="optional">Optional</span></legend>
+          <p class="helper" id="roles-help">Pick any that fit.</p>
+          <div class="chips" aria-describedby="roles-help">
+            <label class="chip"><input type="checkbox" name="help_roles" value="code"><span>Code</span></label>
+            <label class="chip"><input type="checkbox" name="help_roles" value="design"><span>Design</span></label>
+            <label class="chip"><input type="checkbox" name="help_roles" value="users"><span>Talking to users</span></label>
+            <label class="chip"><input type="checkbox" name="help_roles" value="testing"><span>Testing</span></label>
+            <label class="chip"><input type="checkbox" name="help_roles" value="organizing"><span>Organizing</span></label>
+            <label class="chip"><input type="checkbox" name="help_roles" value="idea_only"><span>Just sharing the idea</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="name">Your name <span class="optional">Optional</span></label>
+          <p class="helper" id="name-help">Shown with your idea. Leave it blank to post anonymously.</p>
+          <input type="text" id="name" name="name" maxlength="80" autocomplete="name" aria-describedby="name-help name-counter">
+          <p class="counter" id="name-counter" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="email">Email (private) <span class="optional">Optional</span></label>
+          <p class="helper" id="email-help">Only the organizers see this, to follow up about your idea.</p>
+          <input type="email" id="email" name="email" maxlength="254" autocomplete="email" inputmode="email" spellcheck="false" aria-describedby="email-help email-counter email-error">
+          <p class="counter" id="email-counter" hidden></p>
+          <p class="error" id="email-error" hidden></p>
+        </div>
+
+        <!-- Honeypot: people never see this; bots that fill it get a fake success. -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="notice" id="submit-error" role="alert" hidden>
+          <p>We couldn't reach the server. Your answers are saved here, so try again in a minute.</p>
+          <button type="button" class="btn" id="submit-retry">Retry</button>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" data-back>Back</button>
+          <button type="submit" class="btn primary" id="submit-btn">Share my idea</button>
+        </div>
+      </section>
+    </form>
+
+    <!-- Step 4: the board -->
+    <section id="board" aria-labelledby="board-title" hidden>
+      <header class="board-header">
+        <h1 id="board-title" tabindex="-1">What should we build?</h1>
+        <p class="board-count" id="board-count"></p>
+        <div class="board-actions">
+          <button type="button" class="btn primary" id="add-another">Add another idea</button>
+          <button type="button" class="btn" data-copy-link>Copy link</button>
+          <span class="copy-status" role="status"></span>
+        </div>
+        <div class="sort">
+          <label for="sort">Sort by</label>
+          <select id="sort">
+            <option value="newest">Newest</option>
+            <option value="work_on">Most "I'd work on this"</option>
+            <option value="know_someone">Most "I know someone"</option>
+          </select>
+        </div>
+      </header>
+
+      <p class="board-status" id="board-status" role="status"></p>
+
+      <div class="notice" id="board-error" role="alert" hidden>
+        <p>We couldn't reach the server. Try again in a minute.</p>
+        <button type="button" class="btn" id="board-retry">Retry</button>
+      </div>
+
+      <div class="empty" id="empty-state" hidden>
+        <p>You're first. Share the link with the group.</p>
+        <button type="button" class="btn primary" data-copy-link>Copy link</button>
+        <span class="copy-status" role="status"></span>
+      </div>
+
+      <ol class="cards" id="cards"></ol>
+    </section>
+  </main>
+</body>
+</html>
