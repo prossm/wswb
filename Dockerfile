@@ -9,7 +9,7 @@ ENV NODE_ENV=production \
 WORKDIR /app
 
 # Only the public page files and the server. Nothing else in the repo ships.
-COPY index.html styles.css app.js data.js demo-data.js config.js ./
+COPY index.html styles.css app.js data.js demo-data.js config.js transitions.js ./
 COPY server ./server
 
 # /data is the Disco volume holding the SQLite database.

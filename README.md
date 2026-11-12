@@ -15,6 +15,7 @@ Plain HTML, CSS, and JavaScript in the browser. A small Node server with **no de
 | `index.html` | The page: the 3-step form and the board |
 | `styles.css` | All styling, light and dark mode |
 | `app.js` | UI and step navigation |
+| `transitions.js` | Page-turn animation and sparkles between screens (skipped for reduced motion) |
 | `data.js` | Talks to the API, or to the demo adapter. The UI only calls `submitIdea`, `listIdeas`, `toggleReaction` |
 | `demo-data.js` | Sample ideas used in demo mode |
 | `config.js` | `API_URL` (`/api`). Empty means demo mode |
@@ -22,6 +23,16 @@ Plain HTML, CSS, and JavaScript in the browser. A small Node server with **no de
 | `server/db.js` | SQLite schema and queries |
 | `server/admin.js` | Organizer commands: list, hide, approve, emails, backup |
 | `Dockerfile`, `disco.json` | How [Disco](https://disco.cloud) builds and runs it |
+
+### Keyboard shortcuts
+
+On the form (Ctrl instead of ⌘ on Windows and Linux):
+
+| Keys | Does |
+| --- | --- |
+| ⌘ Enter | The step's main button: Next, or "Share my idea" on step 3 |
+| ⌘ [ | Previous question |
+| ⌘ ] | Next question, if this step's required fields are filled in |
 
 ### The API
 

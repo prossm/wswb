@@ -527,3 +527,83 @@ select:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- Top-of-page step navigation ---------- */
+
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  min-height: 36px;
+  margin: -8px 0 10px;
+}
+.step-nav .next { margin-left: auto; }
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  min-height: 36px;
+  cursor: pointer;
+}
+.nav-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Page-turn transition and sparkles (see transitions.js) ---------- */
+
+/* The turning page can swing past the screen edge; never let it cause sideways scroll. */
+body { overflow-x: clip; }
+
+:root {
+  --spark-1: #e6a300;
+  --spark-2: #1f9e6e;
+  --spark-3: #f2c94c;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --spark-1: #ffd36b;
+    --spark-2: #5fd0a5;
+    --spark-3: #ffffff;
+  }
+}
+
+.sparkles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  overflow: hidden;
+}
+
+.sparkle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform, opacity;
+}
+.sparkle.c1 { --c: var(--spark-1); }
+.sparkle.c2 { --c: var(--spark-2); }
+.sparkle.c3 { --c: var(--spark-3); }
+
+/* Four-point star: the glow sits on the parent so the clip-path doesn't cut it off. */
+.sparkle.star { filter: drop-shadow(0 0 3px var(--c)) drop-shadow(0 0 9px var(--c)); }
+.sparkle.star::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--c);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+.sparkle.dot {
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px 1px var(--c);
+}

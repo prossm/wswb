@@ -1,6 +1,7 @@
 // UI and step navigation. All data access goes through data.js.
 
 import { submitIdea, listIdeas, toggleReaction, isDemo, newId, storage } from './data.js';
+import { turnPage, isTurning } from './transitions.js';
 
 const SITE_URL = 'https://wswb.fyi';
 const DRAFT_KEY = 'wswb.draft';
@@ -63,6 +64,7 @@ const board = $('#board');
 
 let view = null; // 'form' | 'board'
 let step = 1;
+let furthest = 1; // furthest step reached for this idea, so the top Next can return there
 let pendingId = null; // id for the idea being submitted; reused on retry
 let submitting = false;
 
@@ -152,29 +154,63 @@ function updateCounter(name) {
 // Form: steps and submit
 // ============================================================
 
-function showStep(n, { focus = true } = {}) {
+function focusFirstField() {
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  $(`.step[data-step="${step}"]`, form).querySelector('input, textarea')?.focus({ preventScroll: true });
+}
+
+function showStep(n, { focus = true, animate = false } = {}) {
+  const from = $('.step:not([hidden])', form);
+  const to = $(`.step[data-step="${n}"]`, form);
+  const dir = n >= step ? 1 : -1;
   step = n;
-  for (const s of $$('.step', form)) s.hidden = Number(s.dataset.step) !== n;
+  furthest = Math.max(furthest, n);
   $('#step-num').textContent = String(n);
   $$('.progress-seg', form).forEach((seg, i) => seg.classList.toggle('filled', i < n));
   saveDraft();
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  if (focus) {
-    const first = $(`.step[data-step="${n}"]`, form).querySelector('input, textarea');
-    first?.focus();
-  }
+  const arrive = () => {
+    updateStepNav(); // when the new page appears, not before the old one turns
+    if (focus) focusFirstField();
+  };
+  if (animate && from && from !== to) return turnPage(from, to, { dir, onSwap: arrive });
+  for (const s of $$('.step', form)) s.hidden = s !== to;
+  arrive();
 }
 
-function showForm({ fromDraft = true } = {}) {
+// Top-of-page navigation: "Previous" on steps 2 and 3, and "Next" when you've
+// stepped back from a later step.
+function updateStepNav() {
+  $('#nav-prev').hidden = step === 1;
+  $('#nav-next').hidden = !(step < furthest && step < 3);
+}
+
+function goPrev() {
+  if (isTurning() || step === 1) return;
+  showStep(step - 1, { animate: true });
+}
+
+function goNext() {
+  if (isTurning() || step === 3) return;
+  if (validateStep(step)) showStep(step + 1, { animate: true });
+}
+
+function showForm({ fromDraft = true, animate = false } = {}) {
   const draft = fromDraft ? loadDraft() : null;
   restore(draft?.values);
   pendingId = draft?.id ?? null;
   hideSubmitError();
   setSubmitting(false);
-  showView('form');
   // Only resume later steps if step 1 is actually answered.
   const resume = draft && isValid('idea') ? Math.min(Math.max(Number(draft.step) || 1, 1), 3) : 1;
-  showStep(resume);
+  furthest = resume;
+  showStep(resume, { focus: false });
+  if (animate && view === 'board') {
+    view = 'form';
+    turnPage(board, form, { dir: 1, onSwap: focusFirstField });
+  } else {
+    showView('form');
+    focusFirstField();
+  }
 }
 
 function setSubmitting(on) {
@@ -242,28 +278,43 @@ function finishSubmit(id) {
   pendingId = null;
   restore({});
   $('#sort').value = 'newest';
-  showBoard({ highlight: id });
+  showBoard({ highlight: id, animate: true });
 }
 
 form.addEventListener('submit', (e) => {
   e.preventDefault();
-  if (step < 3) {
-    if (validateStep(step)) showStep(step + 1);
-  } else {
-    submit();
+  if (isTurning()) return;
+  if (step < 3) goNext();
+  else submit();
+});
+
+// Keyboard shortcuts (Ctrl instead of Cmd on Windows/Linux):
+//   Cmd-Enter  the step's main button: Next, or "Share my idea" on step 3
+//   Cmd-[      previous step
+//   Cmd-]      next step, if this step's required fields are filled in
+document.addEventListener('keydown', (e) => {
+  if (view !== 'form' || !(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey || e.isComposing) return;
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    form.requestSubmit();
+  } else if (e.code === 'BracketLeft' || e.key === '[') {
+    e.preventDefault(); // otherwise the browser goes Back and leaves the page
+    goPrev();
+  } else if (e.code === 'BracketRight' || e.key === ']') {
+    e.preventDefault();
+    goNext();
   }
 });
 
-// Cmd-Enter (Ctrl-Enter on Windows/Linux) presses the step's main button:
-// Next on steps 1 and 2, "Share my idea" on step 3. Works inside textareas too.
-form.addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey) || e.isComposing) return;
-  e.preventDefault();
-  form.requestSubmit();
-});
+for (const b of $$('[data-back]', form)) b.addEventListener('click', goPrev);
+$('#nav-prev').addEventListener('click', goPrev);
+$('#nav-next').addEventListener('click', goNext);
 
-for (const b of $$('[data-back]', form)) {
-  b.addEventListener('click', () => showStep(Math.max(1, step - 1)));
+// Show the right modifier key in the button tooltips.
+{
+  const mod = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? '⌘' : 'Ctrl+';
+  $('#nav-prev').title = `Previous question (${mod}[)`;
+  $('#nav-next').title = `Next question (${mod}])`;
 }
 
 $('#submit-retry').addEventListener('click', submit);
@@ -306,10 +357,23 @@ function showView(name) {
   board.hidden = name !== 'board';
 }
 
-function showBoard({ highlight = null } = {}) {
-  showView('board');
-  window.scrollTo({ top: 0, behavior: 'instant' });
-  $('#board-title').focus({ preventScroll: true });
+function showBoard({ highlight = null, animate = false } = {}) {
+  const arrive = () => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    $('#board-title').focus({ preventScroll: true });
+  };
+  if (animate && view === 'form') {
+    view = 'board';
+    turnPage(form, board, {
+      dir: 1,
+      onSwap: arrive,
+      // Header pieces, then the first few cards, appear one after another.
+      parts: () => [...$('.board-header').children, $('#board-status'), $('#board-error'), $('#empty-state'), ...$$('#cards > li').slice(0, 6)],
+    });
+  } else {
+    showView('board');
+    arrive();
+  }
   loadBoard({ highlight });
 }
 
@@ -501,7 +565,7 @@ function flashCard(id) {
 
 $('#sort').addEventListener('change', renderBoard);
 $('#board-retry').addEventListener('click', () => loadBoard());
-$('#add-another').addEventListener('click', () => showForm());
+$('#add-another').addEventListener('click', () => showForm({ animate: true }));
 
 // Reload when the tab regains focus. No realtime in v1.
 function maybeRefresh() {

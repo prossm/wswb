@@ -30,6 +30,7 @@ const STATIC = {
   '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
   '/data.js': ['data.js', 'text/javascript; charset=utf-8'],
   '/demo-data.js': ['demo-data.js', 'text/javascript; charset=utf-8'],
+  '/transitions.js': ['transitions.js', 'text/javascript; charset=utf-8'],
   '/config.js': ['config.js', 'text/javascript; charset=utf-8'],
 };
 const cache = new Map();

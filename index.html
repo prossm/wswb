@@ -21,6 +21,10 @@
     <!-- Steps 1 to 3: one form split across three screens -->
     <form id="idea-form" novalidate hidden>
       <h1 class="visually-hidden">What should we build?</h1>
+      <nav class="step-nav" aria-label="Questions">
+        <button type="button" class="nav-btn" id="nav-prev" aria-keyshortcuts="Meta+BracketLeft Control+BracketLeft" hidden><span aria-hidden="true">←</span> Previous</button>
+        <button type="button" class="nav-btn next" id="nav-next" aria-keyshortcuts="Meta+BracketRight Control+BracketRight" hidden>Next <span aria-hidden="true">→</span></button>
+      </nav>
       <div class="progress">
         <div class="progress-track" aria-hidden="true">
           <span class="progress-seg"></span><span class="progress-seg"></span><span class="progress-seg"></span>
