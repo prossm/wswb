@@ -8,6 +8,7 @@
 //   hide <id>           take an idea off the board (reactions are kept)
 //   live <id>           put an idea on the board (approve a pending one, or un-hide)
 //   pending <id>        move an idea back to waiting for review
+//   delete <id>...      permanently delete one or more ideas and their reactions
 //   emails              everyone who left an email, with their idea
 //   backup <file>       write a consistent copy of the database to <file>
 //
@@ -16,7 +17,8 @@
 import { openDb, STATUSES } from './db.js';
 
 const db = openDb();
-const [cmd, arg] = process.argv.slice(2);
+const [cmd, ...args] = process.argv.slice(2);
+const arg = args[0];
 
 const excerpt = (s, n = 70) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
@@ -78,6 +80,20 @@ switch (cmd) {
     setStatus('pending');
     break;
 
+  case 'delete': {
+    // Permanent. Prefer `hide` unless it's test data or spam. Reactions go with it.
+    if (!args.length) fail('Usage: delete <id> [<id> ...]');
+    const ids = args.map(findId); // resolve all first, so a typo deletes nothing
+    const get = db.prepare(`select id, idea from ideas where id = ?`);
+    const del = db.prepare(`delete from ideas where id = ?`);
+    for (const id of ids) {
+      const row = get.get(id);
+      del.run(id);
+      console.log(`${row.id.slice(0, 8)}  deleted  ${excerpt(row.idea)}`);
+    }
+    break;
+  }
+
   case 'emails': {
     const rows = db
       .prepare(`select id, name, email, idea from ideas where email is not null order by created_at desc`)
@@ -95,7 +111,7 @@ switch (cmd) {
   }
 
   default:
-    console.log(`Usage: node server/admin.js <list [--all] | show <id> | hide <id> | live <id> | pending <id> | emails | backup <file>>
+    console.log(`Usage: node server/admin.js <list [--all] | show <id> | hide <id> | live <id> | pending <id> | delete <id>... | emails | backup <file>>
 Statuses: ${STATUSES.join(', ')}`);
 }
 

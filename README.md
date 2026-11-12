@@ -99,6 +99,7 @@ disco run --disco disco.soundcurious.com --project wswb "node server/admin.js li
 | `hide <id>` | Take an idea off the board. Its reactions are kept |
 | `live <id>` | Put an idea back on the board, or approve a pending one |
 | `pending <id>` | Move an idea back to waiting for review |
+| `delete <id> [<id> ...]` | Permanently delete ideas and their reactions. For test data and spam; use `hide` otherwise |
 | `emails` | Everyone who left an email, with their idea |
 | `backup <file>` | Write a consistent copy of the database |
 

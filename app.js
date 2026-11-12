@@ -366,6 +366,7 @@ function showBoard({ highlight = null, animate = false } = {}) {
     view = 'board';
     turnPage(form, board, {
       dir: 1,
+      exit: 'push',
       onSwap: arrive,
       // Header pieces, then the first few cards, appear one after another.
       parts: () => [...$('.board-header').children, $('#board-status'), $('#board-error'), $('#empty-state'), ...$$('#cards > li').slice(0, 6)],

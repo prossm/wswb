@@ -20,8 +20,9 @@ const EASE_IN = 'cubic-bezier(.22,1,.36,1)'; // arrives quickly, settles softly
  * dir  1 = forward (page turns to the left), -1 = back (page turns to the right)
  * onSwap  runs the moment `toEl` is shown (scroll, focus)
  * parts   returns the elements to fade in one by one (default: toEl's children)
+ * exit    'turn' (default) tilts like a page; 'push' slides it away across the desk
  */
-export async function turnPage(fromEl, toEl, { dir = 1, onSwap, parts } = {}) {
+export async function turnPage(fromEl, toEl, { dir = 1, onSwap, parts, exit = 'turn' } = {}) {
   let swapped = false;
   const swap = () => {
     if (swapped) return;
@@ -40,28 +41,23 @@ export async function turnPage(fromEl, toEl, { dir = 1, onSwap, parts } = {}) {
   // If this page is still fading in from the last transition, snap that to the end.
   for (const a of fromEl.getAnimations({ subtree: true })) a.finish();
   try {
-    // 1. A slight page-turn tilt toward the spine, drifting and fading out.
-    fromEl.style.transformOrigin = dir > 0 ? 'left center' : 'right center';
-    const out = fromEl.animate(
-      [
-        { transform: 'perspective(1800px) rotateY(0deg) translateX(0)', opacity: 1, filter: 'blur(0px)' },
-        { transform: `perspective(1800px) rotateY(${14 * dir}deg) translateX(${-24 * dir}px)`, opacity: 0, filter: 'blur(2px)' },
-      ],
-      { duration: OUT_MS, easing: EASE_OUT, fill: 'forwards' },
-    );
+    // 1. Send the old page away.
+    const out = exit === 'push' ? pushAway(fromEl) : turnAway(fromEl, dir);
     await out.finished;
     swap();
     out.cancel();
     fromEl.style.transformOrigin = '';
     turning = false; // the new page is usable now; fading in is just decoration
 
-    // 2. The new page fades in from the turning side, one piece after another.
+    // 2. The new page fades in, one piece after another: from the turning side,
+    //    or rising gently after a push.
     sparkleTrail(toEl, dir);
+    const from = exit === 'push' ? 'translateY(10px)' : `translateX(${14 * dir}px)`;
     const items = (parts ? parts() : [...toEl.children]).filter((el) => !el.hidden && el.getClientRects().length);
     items.forEach((el, i) =>
       el.animate(
         [
-          { opacity: 0, transform: `translateX(${14 * dir}px)`, filter: 'blur(3px)' },
+          { opacity: 0, transform: from, filter: 'blur(3px)' },
           { opacity: 1, transform: 'none', filter: 'blur(0px)' },
         ],
         { duration: IN_MS, delay: 40 + i * STAGGER_MS, easing: EASE_IN, fill: 'backwards' },
@@ -72,6 +68,32 @@ export async function turnPage(fromEl, toEl, { dir = 1, onSwap, parts } = {}) {
   } finally {
     turning = false;
   }
+}
+
+// A slight page-turn tilt toward the spine, drifting and fading out.
+function turnAway(el, dir) {
+  el.style.transformOrigin = dir > 0 ? 'left center' : 'right center';
+  return el.animate(
+    [
+      { transform: 'perspective(1800px) rotateY(0deg) translateX(0)', opacity: 1, filter: 'blur(0px)' },
+      { transform: `perspective(1800px) rotateY(${14 * dir}deg) translateX(${-24 * dir}px)`, opacity: 0, filter: 'blur(2px)' },
+    ],
+    { duration: OUT_MS, easing: EASE_OUT, fill: 'forwards' },
+  );
+}
+
+// Pushing the paper across the desk to someone: it tips back so the far edge
+// recedes, slides away from you, shrinks with distance, and fades.
+function pushAway(el) {
+  el.style.transformOrigin = 'center bottom';
+  return el.animate(
+    [
+      { transform: 'perspective(1100px) rotateX(0deg) translateY(0) scale(1)', opacity: 1, filter: 'blur(0px)' },
+      { transform: 'perspective(1100px) rotateX(10deg) translateY(-6px) scale(0.99)', opacity: 1, filter: 'blur(0px)', offset: 0.25 },
+      { transform: 'perspective(1100px) rotateX(38deg) translateY(-90px) scale(0.78)', opacity: 0, filter: 'blur(2px)' },
+    ],
+    { duration: 520, easing: 'cubic-bezier(.45,0,.55,1)', fill: 'forwards' },
+  );
 }
 
 // ---------- A brief, faint trail of specks ----------
