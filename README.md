@@ -15,7 +15,7 @@ Plain HTML, CSS, and JavaScript in the browser. A small Node server with **no de
 | `index.html` | The page: the 3-step form and the board |
 | `styles.css` | All styling, light and dark mode |
 | `app.js` | UI and step navigation |
-| `transitions.js` | Page-turn animation and sparkles between screens (skipped for reduced motion) |
+| `transitions.js` | Soft page-turn fade between screens (skipped for reduced motion) |
 | `data.js` | Talks to the API, or to the demo adapter. The UI only calls `submitIdea`, `listIdeas`, `toggleReaction` |
 | `demo-data.js` | Sample ideas used in demo mode |
 | `config.js` | `API_URL` (`/api`). Empty means demo mode |

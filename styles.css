@@ -556,7 +556,7 @@ select:focus-visible {
 }
 .nav-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-/* ---------- Page-turn transition and sparkles (see transitions.js) ---------- */
+/* ---------- Page-turn transition and specks (see transitions.js) ---------- */
 
 /* The turning page can swing past the screen edge; never let it cause sideways scroll. */
 body { overflow-x: clip; }
@@ -593,7 +593,7 @@ body { overflow-x: clip; }
 .sparkle.c3 { --c: var(--spark-3); }
 
 /* Four-point star: the glow sits on the parent so the clip-path doesn't cut it off. */
-.sparkle.star { filter: drop-shadow(0 0 3px var(--c)) drop-shadow(0 0 9px var(--c)); }
+.sparkle.star { filter: drop-shadow(0 0 2px var(--c)); }
 .sparkle.star::before {
   content: "";
   position: absolute;
@@ -605,5 +605,5 @@ body { overflow-x: clip; }
 .sparkle.dot {
   border-radius: 50%;
   background: var(--c);
-  box-shadow: 0 0 6px 1px var(--c);
+  box-shadow: 0 0 3px var(--c);
 }
