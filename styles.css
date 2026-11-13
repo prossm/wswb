@@ -405,14 +405,19 @@ select:focus-visible {
   box-shadow: 0 0 0 3px var(--accent);
 }
 
-.badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
 
 .badge {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 750;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 3px 10px;
+  letter-spacing: 0.06em;
+  padding: 2px 9px;
   border-radius: 999px;
   border: 1.5px solid var(--border);
   color: var(--muted);
@@ -423,38 +428,43 @@ select:focus-visible {
   color: var(--accent-text);
 }
 
+.byline { color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
+.byline .author { color: var(--text); font-weight: 600; }
+.byline a { color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
+
 .headline {
-  font-size: 1.1875rem;
-  line-height: 1.35;
+  font-size: 1.125rem;
+  line-height: 1.4;
   font-weight: 700;
   overflow-wrap: anywhere;
   white-space: pre-line;
 }
 
-.details { margin: 0; display: grid; gap: 8px; }
-.details div { display: grid; gap: 0; }
+/* Label above text on phones; a label column beside the text when there's room. */
+.details { margin: 0; display: grid; }
+.details div {
+  display: grid;
+  gap: 2px;
+  padding: 10px 0;
+  border-top: 1px solid var(--hairline);
+}
+.details div:last-child { padding-bottom: 2px; }
 .details dt {
   font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-weight: 650;
   color: var(--muted);
 }
-.details dd { margin: 0; overflow-wrap: anywhere; white-space: pre-line; }
-
-.chip-static {
-  justify-self: start;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 3px 12px;
-  border-radius: 999px;
-  background: var(--accent-soft);
+.details dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
 }
-
-.help-line { font-size: 0.9375rem; }
-
-.byline { color: var(--muted); font-size: 0.9375rem; overflow-wrap: anywhere; }
-.byline a { color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
+@media (min-width: 560px) {
+  .details div { grid-template-columns: 8.5rem 1fr; gap: 16px; }
+  .details dt { padding-top: 2px; }
+}
 
 .reactions { display: grid; gap: 6px; padding-top: 4px; border-top: 1px solid var(--hairline); }
 .react-row { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; }

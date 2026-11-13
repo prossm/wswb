@@ -42,7 +42,11 @@ const FIELDS = {
 const TEXT_KEYS = Object.keys(FIELDS);
 const STEP_FIELDS = { 1: ['idea'], 2: ['who', 'pain', 'why_tech', 'smallest'], 3: ['name', 'github', 'email'] };
 
-const EVIDENCE_LABELS = { one_of_them: 'One of them', talked_to_them: 'Talked to them', hunch: 'Hunch' };
+const EVIDENCE_LABELS = {
+  one_of_them: "They're one of them",
+  talked_to_them: "They've talked to them",
+  hunch: "It's a hunch",
+};
 const ROLE_LABELS = {
   code: 'Code',
   design: 'Design',
@@ -445,32 +449,35 @@ function renderCard(idea) {
       })
     : null;
 
+  // Every answer reads the same way: a short label, then the text.
+  const roles = (idea.help_roles || []).filter((r) => ROLE_LABELS[r]).map((r) => ROLE_LABELS[r]);
   const rows = [
     ['For', idea.who],
     ['Problem', idea.pain],
     ['Why software', idea.why_tech],
     ['Smallest version', idea.smallest],
+    ['How they know', EVIDENCE_LABELS[idea.evidence]],
+    ['Can help with', roles.join(', ')],
   ].filter(([, v]) => v && v.trim());
   const details = rows.length
     ? el('dl', { class: 'details' }, rows.map(([k, v]) => el('div', {}, el('dt', { text: k }), el('dd', { text: v }))))
     : null;
 
-  const evidence = EVIDENCE_LABELS[idea.evidence]
-    ? el('p', { class: 'chip-static', text: EVIDENCE_LABELS[idea.evidence] })
-    : null;
-
-  const roles = (idea.help_roles || []).filter((r) => ROLE_LABELS[r]).map((r) => ROLE_LABELS[r]);
-  const help = roles.length ? el('p', { class: 'help-line', text: `Can help with: ${roles.join(', ')}` }) : null;
-
-  const footer = el(
-    'p',
-    { class: 'byline' },
-    el('span', { text: idea.name?.trim() || 'Anonymous' }),
-    idea.github
-      ? [' · ', externalLink(`https://github.com/${encodeURIComponent(idea.github)}`, `@${idea.github}`)]
-      : null,
-    ' · ',
-    el('time', { datetime: idea.created_at, title: new Date(idea.created_at).toLocaleString(), text: relativeTime(idea.created_at) }),
+  // Who and when, at the top next to any badge.
+  const top = el(
+    'div',
+    { class: 'card-top' },
+    badges,
+    el(
+      'p',
+      { class: 'byline' },
+      el('span', { class: 'author', text: idea.name?.trim() || 'Anonymous' }),
+      idea.github
+        ? [' · ', externalLink(`https://github.com/${encodeURIComponent(idea.github)}`, `@${idea.github}`)]
+        : null,
+      ' · ',
+      el('time', { datetime: idea.created_at, title: new Date(idea.created_at).toLocaleString(), text: relativeTime(idea.created_at) }),
+    ),
   );
 
   let reactions;
@@ -492,13 +499,10 @@ function renderCard(idea) {
     el(
       'article',
       { 'aria-labelledby': titleId },
-      badges.length ? el('div', { class: 'badges' }, badges) : null,
+      top,
       headline,
       more,
       details,
-      evidence,
-      help,
-      footer,
       reactions,
     ),
   );
